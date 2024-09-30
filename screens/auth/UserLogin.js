@@ -7,14 +7,22 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
-
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const Login = () => {
+const UserLogin = () => {
   const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.containerTop}></View>
+
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={23} color={"white"} />
+        </TouchableOpacity>
+        <Text style={styles.title}>User Login</Text>
+      </View>
+
       <View style={styles.loginContainer}>
         <View style={styles.loginImage}>
           <Image
@@ -50,6 +58,20 @@ const styles = StyleSheet.create({
     padding: 20,
   },
 
+  header: {
+    position: "absolute",
+    top: 50,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+  },
+  title: {
+    fontSize: 21,
+    fontFamily: "PoppinsBold",
+    marginLeft: 10,
+    color: "#fff",
+  },
+
   containerTop: {
     width: 600,
     marginTop: -350,
@@ -57,6 +79,7 @@ const styles = StyleSheet.create({
     height: 600,
     borderRadius: 250,
     backgroundColor: "#0E1724",
+    alignItems: "flex-end",
   },
 
   loginContainer: {
@@ -102,4 +125,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default UserLogin;

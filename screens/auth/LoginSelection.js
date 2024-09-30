@@ -9,17 +9,18 @@ const LoginSelection = () => {
     <View style={styles.container}>
       <Image source={require("../../assets/ridemate.png")} />
       <Text style={styles.title}>RideMate</Text>
+      <Text style={styles.subtitle}>Login As</Text>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Login")}
+        onPress={() => navigation.navigate("DriverLogin")}
       >
         <Text style={styles.buttonText}>Driver</Text>
       </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.button}
-        onPress={() => navigation.navigate("Login")}
+        onPress={() => navigation.navigate("UserLogin")}
       >
         <Text style={styles.buttonText}>User</Text>
       </TouchableOpacity>
@@ -45,8 +46,8 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    marginBottom: 40,
-    color: "#7a7a7a",
+    fontFamily: "PoppinsMedium",
+    color: "#fff",
   },
   button: {
     width: "100%",

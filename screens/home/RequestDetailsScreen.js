@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import LoadingComponent from "../../components/LoadingComponent";
 
 const availableLocations = [
   "Gate",
@@ -25,10 +26,14 @@ const RequestDetailsScreen = ({ route, navigation }) => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [price, setPrice] = useState(0);
+  const [loading, setLoading] = useState(false); // Loading state
 
   // Function to calculate price based on current and selected locations
   const calculatePrice = () => {
-    if (currentLocation === "Gate" && selectedLocation === "Roundabout") {
+    if (
+      currentLocation === "Gate" &&
+      selectedLocation === "Mokola Roundabout"
+    ) {
       setPrice(100); // Fixed price for Gate to Roundabout
     } else if (currentLocation === "Market" && selectedLocation === "School") {
       setPrice(150); // Example fixed price for Market to School
@@ -67,63 +72,72 @@ const RequestDetailsScreen = ({ route, navigation }) => {
     }
   };
 
+  const handleSubmit = () => {
+    setLoading(true);
+    setTimeout(() => {
+      // Simulate request submission logic
+      console.log("Request submitted");
+      setLoading(false);
+      navigation.goBack(); // Optionally navigate back after submission
+    }, 3000); // Adjust the time as needed
+  };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Ionicons name="chevron-back" size={23} />
-        </TouchableOpacity>
-        <Text style={styles.title}>Your Trip Details</Text>
-      </View>
-
-      <View style={styles.requestDetailsContainer}>
-        {/* Display Vehicle Image */}
-        <View style={styles.vehicleContainer}>
-          <Image source={getVehicleImage()} style={styles.vehicleImage} />
+      <View>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => navigation.goBack()}>
+            <Ionicons name="chevron-back" size={23} />
+          </TouchableOpacity>
+          <Text style={styles.title}>Your Trip Details</Text>
         </View>
 
-        {/* Display Destination with Marker Icon */}
-        <View style={styles.destinationContainer}>
-          <Ionicons name="location-outline" size={20} />
-          <Text style={styles.detailText}>Destination: {selectedLocation}</Text>
-        </View>
+        <View style={styles.requestDetailsContainer}>
+          {/* Display Vehicle Image */}
+          <View style={styles.vehicleContainer}>
+            <Image source={getVehicleImage()} style={styles.vehicleImage} />
+          </View>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Enter current location"
-          value={currentLocation}
-          onChangeText={filterLocations}
-        />
+          {/* Display Destination with Marker Icon */}
+          <View style={styles.destinationContainer}>
+            <Ionicons name="location-outline" size={20} />
+            <Text style={styles.detailText}>
+              Destination: {selectedLocation}
+            </Text>
+          </View>
 
-        {/* Display filtered suggestions */}
-        {filteredLocations.length > 0 && (
-          <FlatList
-            data={filteredLocations}
-            keyExtractor={(item) => item}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.suggestion}
-                onPress={() => selectLocation(item)}
-              >
-                <Text style={styles.suggestionText}>{item}</Text>
-              </TouchableOpacity>
-            )}
-            style={styles.suggestionList}
+          <TextInput
+            style={styles.input}
+            placeholder="Enter current location"
+            value={currentLocation}
+            onChangeText={filterLocations}
           />
-        )}
 
-        <Text style={styles.priceText}>Estimated Price: ${price}</Text>
+          {/* Display filtered suggestions */}
+          {filteredLocations.length > 0 && (
+            <FlatList
+              data={filteredLocations}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.suggestion}
+                  onPress={() => selectLocation(item)}
+                >
+                  <Text style={styles.suggestionText}>{item}</Text>
+                </TouchableOpacity>
+              )}
+              style={styles.suggestionList}
+            />
+          )}
 
-        <TouchableOpacity
-          style={styles.requestButton}
-          onPress={() => {
-            // Handle the request submission logic here
-            console.log("Request submitted");
-          }}
-        >
-          <Text style={styles.requestButtonText}>Submit Request</Text>
-        </TouchableOpacity>
+          <Text style={styles.priceText}>Estimated Price: ${price}</Text>
+
+          <TouchableOpacity style={styles.requestButton} onPress={handleSubmit}>
+            <Text style={styles.requestButtonText}>Submit Request</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+      {loading && <LoadingComponent />}
     </SafeAreaView>
   );
 };
@@ -178,8 +192,9 @@ const styles = StyleSheet.create({
   },
   suggestionList: {
     borderWidth: 1,
-    borderRadius: 4,
-    maxHeight: 100,
+    borderColor: "#0E1724",
+    borderRadius: 15,
+    maxHeight: 150,
     marginBottom: 15,
   },
   suggestion: {
@@ -192,18 +207,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   priceText: {
+    fontFamily: "PoppinsSemiBold",
     fontSize: 20,
     marginVertical: 10,
   },
   requestButton: {
-    backgroundColor: "#0E1724",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    width: "100%",
+    backgroundColor: "#0e1724",
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginBottom: 40,
   },
   requestButtonText: {
     color: "white",
     fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

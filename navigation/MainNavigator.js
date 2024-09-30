@@ -1,10 +1,13 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginSelection from "../screens/auth/LoginSelection";
-import Login from "../screens/auth/Login";
+import UserLogin from "../screens/auth/UserLogin";
+import DriverLogin from "../screens/auth/DriverLogin";
 import Register from "../screens/auth/Register";
 import RideBookingScreen from "../screens/home/RideBookingScreen";
 import RequestDetailsScreen from "../screens/home/RequestDetailsScreen";
+import AvailableDriversScreen from "../screens/AvailableDriverScreen";
+import DriverHomeScreen from "../screens/DriverHomeScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -18,8 +21,13 @@ const MainNavigator = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="Login"
-          component={Login}
+          name="UserLogin"
+          component={UserLogin}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="DriverLogin"
+          component={DriverLogin}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -37,6 +45,18 @@ const MainNavigator = () => {
         <Stack.Screen
           name="RequestDetailsScreen"
           component={RequestDetailsScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="AvailableDriversScreen"
+          component={AvailableDriversScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="DriverHomeScreen"
+          component={DriverHomeScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
