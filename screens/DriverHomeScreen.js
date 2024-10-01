@@ -10,6 +10,8 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingComponent from "../components/LoadingComponent";
+import { db } from "../services/config"; // Adjust the path as necessary
+import { collection, onSnapshot } from "firebase/firestore"; // Import Firestore functions
 
 const DriverHomeScreen = ({ navigation }) => {
   const [trips, setTrips] = useState([]);
@@ -22,23 +24,29 @@ const DriverHomeScreen = ({ navigation }) => {
     rating: 0,
   });
 
-  // Simulated data for available trips
-  const fetchAvailableTrips = async () => {
-    // Simulating a network request with a timeout
-    setTimeout(() => {
-      const tripRequests = [
-        { id: "1", location: "Gate", destination: "Roundabout", price: 100 },
-        { id: "2", location: "Market", destination: "School", price: 150 },
-        { id: "3", location: "Hospital", destination: "Market", price: 200 },
-        // Add more trip requests as needed
-      ];
-      setTrips(tripRequests);
-      setLoading(false);
-    }, 2000);
+  // Fetch available trips from Firestore in real-time
+  const fetchAvailableTrips = () => {
+    try {
+      const tripsRef = collection(db, "trips"); // Reference to the "trips" collection
+      const unsubscribe = onSnapshot(tripsRef, (querySnapshot) => {
+        const tripRequests = [];
+        querySnapshot.forEach((doc) => {
+          console.log(doc.id, " => ", doc.data()); // Log the document ID and data
+          tripRequests.push({ id: doc.id, ...doc.data() }); // Add doc ID and data
+        });
+        setTrips(tripRequests); // Update the state with the new trip data
+        setLoading(false); // Stop loading once trips are fetched
+      });
+
+      // Cleanup the subscription when the component unmounts
+      return unsubscribe;
+    } catch (error) {
+      console.error("Error fetching trips: ", error);
+    }
   };
 
   useEffect(() => {
-    fetchAvailableTrips();
+    const unsubscribe = fetchAvailableTrips();
 
     // Simulated driver stats
     setDriverStats({
@@ -46,6 +54,13 @@ const DriverHomeScreen = ({ navigation }) => {
       amountEarned: 450,
       rating: 4.5,
     });
+
+    // Cleanup listener when component unmounts
+    return () => {
+      if (unsubscribe) {
+        unsubscribe(); // Unsubscribe from Firestore real-time updates
+      }
+    };
   }, []);
 
   const selectTrip = (trip) => {
@@ -67,8 +82,10 @@ const DriverHomeScreen = ({ navigation }) => {
   const renderTripItem = ({ item }) => (
     <View style={styles.tripItem} onPress={() => selectTrip(item)}>
       <Text style={styles.tripText}>
-        {item.location} to {item.destination} - Price: ${item.price}
+        {item.currentLocation} to {item.selectedLocation} {"\n"}Price: ${item.price}
       </Text>
+
+      <Text style={styles.tripText}>Vehicle Type: {item.vehicleType}</Text>
 
       <TouchableOpacity
         style={styles.requestButton}
@@ -97,7 +114,6 @@ const DriverHomeScreen = ({ navigation }) => {
       </View>
 
       {/* Driver Stats Section */}
-      {/* <Text style={styles.statsTitle}>Your Stats</Text> */}
       <View style={styles.statsContainer}>
         <View style={styles.statItem}>
           <Text style={styles.statLabel}>Trips Taken</Text>
@@ -135,6 +151,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#fff",
   },
   header: {
     flexDirection: "row",
@@ -178,7 +195,6 @@ const styles = StyleSheet.create({
   },
   statValue: {
     color: "#fff",
-
     fontSize: 16,
     fontFamily: "PoppinsSemiBold",
   },
@@ -206,7 +222,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "PoppinsMedium",
   },
-
   requestButton: {
     width: "100%",
     backgroundColor: "#0e1724",

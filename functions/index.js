@@ -1,19 +1,39 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+// Import Firebase Admin SDK
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+// Initialize Firebase App
+admin.initializeApp();
+const db = admin.firestore();
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// Define an API route to save a trip
+exports.createTrip = functions.https.onRequest(async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).send("Method Not Allowed");
+  }
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+  try {
+    const {vehicleType, currentLocation, destination, price, userId} =
+      req.body;
+
+    // Validate request body
+    if (!vehicleType || !currentLocation || !destination || !price || !userId) {
+      return res.status(400).send({error: "Missing required fields"});
+    }
+
+    // Create a trip document in Firestore
+    const tripRef = await db.collection("trips").add({
+      vehicleType,
+      currentLocation,
+      destination,
+      price,
+      userId,
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.status(201).send({message: "Trip created", tripId: tripRef.id});
+  } catch (error) {
+    console.error("Error creating trip:", error);
+    res.status(500).send({error: "Internal Server Error"});
+  }
+});

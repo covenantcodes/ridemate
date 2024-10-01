@@ -224,6 +224,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     marginRight: 10,
+    fontFamily: "PoppinsRegular",
   },
   locationButton: {
     position: "absolute",
@@ -245,6 +246,7 @@ const styles = StyleSheet.create({
   locationButtonText: {
     fontSize: 16,
     color: "gray",
+    fontFamily: "PoppinsRegular",
   },
   map: {
     flex: 1,
@@ -264,7 +266,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     borderColor: "transparent",
-    borderWidth: 1,
+    borderWidth: 2,
     width: "30%",
   },
   selected: {
@@ -277,6 +279,7 @@ const styles = StyleSheet.create({
   },
   categoryText: {
     fontSize: 14,
+    fontFamily: "PoppinsSemiBold",
   },
   modalContainer: {
     flex: 1,
@@ -293,7 +296,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "PoppinsBold",
     marginBottom: 20,
   },
   modalSearchInput: {
@@ -304,6 +307,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     marginBottom: 15,
+    fontFamily: "PoppinsRegular",
   },
   locationItem: {
     paddingVertical: 10,
@@ -312,6 +316,7 @@ const styles = StyleSheet.create({
   },
   locationText: {
     fontSize: 16,
+    fontFamily: "PoppinsRegular",
   },
   noLocationText: {
     fontSize: 14,
@@ -330,6 +335,7 @@ const styles = StyleSheet.create({
   closeButtonText: {
     color: "white",
     fontSize: 16,
+    fontFamily: "PoppinsSemiBold",
   },
   requestButton: {
     backgroundColor: "black",
@@ -342,7 +348,7 @@ const styles = StyleSheet.create({
   requestButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "PoppinsSemiBold",
   },
 });
 

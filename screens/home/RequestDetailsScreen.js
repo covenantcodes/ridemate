@@ -6,11 +6,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Platform,
   FlatList,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingComponent from "../../components/LoadingComponent";
+import { db } from "../../services/config"; // Adjust the path as necessary
+import { collection, addDoc } from "firebase/firestore"; // Import Firestore functions
 
 const availableLocations = [
   "Gate",
@@ -18,7 +22,6 @@ const availableLocations = [
   "Market",
   "School",
   "Hospital",
-  // Add more locations as needed
 ];
 
 const RequestDetailsScreen = ({ route, navigation }) => {
@@ -26,7 +29,7 @@ const RequestDetailsScreen = ({ route, navigation }) => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [price, setPrice] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // Loading state
 
   // Function to calculate price based on current and selected locations
   const calculatePrice = () => {
@@ -58,6 +61,30 @@ const RequestDetailsScreen = ({ route, navigation }) => {
     calculatePrice(); // Recalculate price based on selected location
   };
 
+  // Function to handle trip submission
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const tripData = {
+        vehicleType: vehicleType,
+        currentLocation: currentLocation,
+        selectedLocation: selectedLocation,
+        price: price,
+        timestamp: new Date(), // Optional timestamp
+      };
+
+      // Add a new trip document to the "trips" collection
+      await addDoc(collection(db, "trips"), tripData);
+      console.log("Trip saved successfully!");
+      // Optionally navigate back or show a success message
+      navigation.goBack();
+    } catch (error) {
+      console.error("Error saving trip:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Define vehicle images based on vehicle type
   const getVehicleImage = () => {
     switch (vehicleType) {
@@ -69,47 +96,6 @@ const RequestDetailsScreen = ({ route, navigation }) => {
         return require("../../assets/bus.png");
       default:
         return null;
-    }
-  };
-
-  // Handle form submission and save trip to the database
-  const handleSubmit = async () => {
-    setLoading(true);
-
-    // Prepare the trip details to be saved
-    const tripDetails = {
-      vehicleType,
-      selectedLocation,
-      currentLocation,
-      price,
-      timestamp: new Date().toISOString(),
-    };
-
-    try {
-      // Send POST request to save trip to the backend
-      const response = await fetch("https://your-backend-api.com/trips", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tripDetails),
-      });
-
-      if (response.ok) {
-        // Trip saved successfully
-        const result = await response.json();
-        console.log("Trip saved:", result);
-
-        // Optionally navigate back or show a success message
-        navigation.goBack();
-      } else {
-        // Handle the error if the request failed
-        console.error("Failed to save trip");
-      }
-    } catch (error) {
-      console.error("Error saving trip:", error);
-    } finally {
-      setLoading(false); // Stop loading spinner
     }
   };
 
@@ -138,7 +124,7 @@ const RequestDetailsScreen = ({ route, navigation }) => {
           </View>
 
           <TextInput
-            style={styles.input}
+            style={styles.containerTextInput}
             placeholder="Enter current location"
             value={currentLocation}
             onChangeText={filterLocations}
@@ -168,7 +154,6 @@ const RequestDetailsScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
-
       {loading && <LoadingComponent />}
     </SafeAreaView>
   );
@@ -182,7 +167,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 10,
+    paddingTop: Platform.OS === "ios" ? StatusBar.currentHeight : 40,
   },
   title: {
     fontSize: 21,
@@ -213,15 +198,14 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsMedium",
     marginLeft: 4,
   },
-  input: {
-    width: "100%",
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
+  containerTextInput: {
+    borderBottomWidth: 1,
+    borderColor: "#0E1724",
+    padding: 10,
+    fontFamily: "PoppinsMedium",
+    marginVertical: 10,
   },
+
   suggestionList: {
     borderWidth: 1,
     borderColor: "#0E1724",
@@ -237,6 +221,7 @@ const styles = StyleSheet.create({
   },
   suggestionText: {
     fontSize: 16,
+    fontFamily: "PoppinsMedium",
   },
   priceText: {
     fontFamily: "PoppinsSemiBold",
@@ -254,7 +239,7 @@ const styles = StyleSheet.create({
   requestButtonText: {
     color: "white",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "PoppinsSemiBold",
   },
 });
 

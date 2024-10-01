@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "ridemate-417bf"
-  }
+    "default": "ridemate-412eb",
+    "staging": "ridemate-412eb"
+  },
+  "targets": {},
+  "etags": {}
 }
