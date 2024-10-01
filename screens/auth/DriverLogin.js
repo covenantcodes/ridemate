@@ -45,42 +45,44 @@ const DriverLogin = () => {
     setLoading(true);
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        const user = userCredential.user;
-        console.log("User logged in:", user.email);
+        .then(async (userCredential) => {
+            const user = userCredential.user;
+            console.log("User logged in:", user.email);
 
-        // Retrieve the user role after login
-        try {
-          const role = await checkUserRole(user.uid);
-          console.log("User Role:", role); // Debug log
+            // Retrieve the user role after login
+            try {
+                const role = await checkUserRole(user.uid);
+                console.log("User Role:", role); // Debug log
 
-          // Normalize role to lowercase for comparison
-          if (role.toLowerCase() === "user") {
-            // Show an alert if the user is a driver but logged in via the user login screen
-            Alert.alert(
-              "Login Failed",
-              "You are registered as a user. Please log in via the User Login."
-            );
-          } else if (role.toLowerCase() === "driver") {
-            // Navigate to RideBookingScreen if role is user
-            navigation.navigate("DriverHomeScreen");
-          } else {
-            Alert.alert("Error", "Invalid user role");
-          }
-        } catch (error) {
-          console.error("Role check error: ", error); // Debug log
-          Alert.alert("Error", error.message);
-        }
-      })
-      .catch((error) => {
-        const errorMessage = error.message;
-        console.error("Login error: ", errorMessage); // Debug log
-        Alert.alert("Login Failed", errorMessage);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+                // Normalize role to lowercase for comparison
+                if (role.toLowerCase() === "user") {
+                    Alert.alert(
+                        "Login Failed",
+                        "You are registered as a user. Please log in via the User Login."
+                    );
+                } else if (role.toLowerCase() === "driver") {
+                    // Pass user email to DriverHomeScreen
+                    navigation.navigate("DriverHomeScreen", { userEmail: user.email });
+                    console.log("suer: ", user.email)
+                } else {
+                    Alert.alert("Error", "Invalid user role");
+                }
+            } catch (error) {
+                console.error("Role check error: ", error); // Debug log
+                Alert.alert("Error", error.message);
+            }
+        })
+        .catch((error) => {
+            const errorMessage = error.message;
+            console.error("Login error: ", errorMessage); // Debug log
+            Alert.alert("Login Failed", errorMessage);
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+};
+
+
 
   return (
     <SafeAreaView style={styles.container}>

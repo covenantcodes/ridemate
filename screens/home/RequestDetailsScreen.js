@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Add useEffect import
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import { SafeAreaView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import LoadingComponent from "../../components/LoadingComponent";
 import { db } from "../../services/config"; // Adjust the path as necessary
-import { collection, addDoc } from "firebase/firestore"; // Import Firestore functions
+import { collection, addDoc, onSnapshot, doc } from "firebase/firestore"; // Import Firestore functions
 
 const availableLocations = [
   "Gate",
@@ -28,8 +28,10 @@ const RequestDetailsScreen = ({ route, navigation }) => {
   const { vehicleType, selectedLocation } = route.params;
   const [currentLocation, setCurrentLocation] = useState("");
   const [filteredLocations, setFilteredLocations] = useState([]);
+  const [status, setStatus] = useState("Accepted");
   const [price, setPrice] = useState(0);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
+
 
   // Function to calculate price based on current and selected locations
   const calculatePrice = () => {
@@ -70,14 +72,17 @@ const RequestDetailsScreen = ({ route, navigation }) => {
         currentLocation: currentLocation,
         selectedLocation: selectedLocation,
         price: price,
-        timestamp: new Date(), // Optional timestamp
+        status: status, // Initial status
+        timestamp: new Date(),
       };
 
       // Add a new trip document to the "trips" collection
-      await addDoc(collection(db, "trips"), tripData);
+      const tripRef = await addDoc(collection(db, "trips"), tripData);
       console.log("Trip saved successfully!");
-      // Optionally navigate back or show a success message
-      navigation.goBack();
+
+      // Navigate to the Looking for Drivers screen
+      navigation.navigate("LookingForDriversScreen", { tripId: tripRef.id });
+
     } catch (error) {
       console.error("Error saving trip:", error);
     } finally {
@@ -147,7 +152,7 @@ const RequestDetailsScreen = ({ route, navigation }) => {
             />
           )}
 
-          <Text style={styles.priceText}>Estimated Price: ${price}</Text>
+          <Text style={styles.priceText}>Estimated Price: ₦{price}</Text>
 
           <TouchableOpacity style={styles.requestButton} onPress={handleSubmit}>
             <Text style={styles.requestButtonText}>Submit Request</Text>

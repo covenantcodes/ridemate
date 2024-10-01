@@ -9,6 +9,10 @@ import RequestDetailsScreen from "../screens/home/RequestDetailsScreen";
 import AvailableDriversScreen from "../screens/AvailableDriverScreen";
 import DriverHomeScreen from "../screens/DriverHomeScreen";
 import UserRegistrationScreen from "../screens/auth/UserRegistrationScreen";
+import TripStatusScreen from "../screens/TripStatusScreen";
+import LookingForDriversScreen from "../screens/LookingForDriversScreen";
+import OrderAcceptedScreen from "../screens/OrderAcceptedScreen";
+import PaymentScreen from "../screens/PaymentScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -66,6 +70,27 @@ const MainNavigator = () => {
           component={UserRegistrationScreen}
           options={{ headerShown: false }}
         />
+
+        <Stack.Screen
+        name="LookingForDriversScreen"
+          component={LookingForDriversScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+        name="OrderAcceptedScreen"
+          component={OrderAcceptedScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+        name="PaymentScreen"
+          component={PaymentScreen}
+          options={{ headerShown: false}}
+        />
+
+<Stack.Screen name="TripStatusScreen" component={TripStatusScreen} options={{headerShown: false}}/>
+
       </Stack.Navigator>
     </NavigationContainer>
   );

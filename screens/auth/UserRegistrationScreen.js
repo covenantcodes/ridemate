@@ -48,7 +48,7 @@ const UserRegistrationScreen = ({ navigation }) => {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.error(`Error ${errorCode}: ${errorMessage}`);
+        console.error(`Error ₦{errorCode}: ₦{errorMessage}`);
         Alert.alert("Registration Error", errorMessage);
       });
   };
