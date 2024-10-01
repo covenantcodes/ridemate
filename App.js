@@ -1,6 +1,6 @@
+import React from "react";
 import { useFonts } from "expo-font";
 import { StyleSheet, Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
 import MainNavigator from "./navigation/MainNavigator";
 
 const App = () => {

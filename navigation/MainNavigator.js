@@ -8,6 +8,7 @@ import RideBookingScreen from "../screens/home/RideBookingScreen";
 import RequestDetailsScreen from "../screens/home/RequestDetailsScreen";
 import AvailableDriversScreen from "../screens/AvailableDriverScreen";
 import DriverHomeScreen from "../screens/DriverHomeScreen";
+import UserRegistrationScreen from "../screens/auth/UserRegistrationScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ const MainNavigator = () => {
           name="LoginSelection"
           component={LoginSelection}
           options={{ headerShown: false }}
+          z
         />
         <Stack.Screen
           name="UserLogin"
@@ -57,6 +59,12 @@ const MainNavigator = () => {
         <Stack.Screen
           name="DriverHomeScreen"
           component={DriverHomeScreen}
+          options={{ headerShown: false }}
+        />
+
+        <Stack.Screen
+          name="UserRegistrationScreen"
+          component={UserRegistrationScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

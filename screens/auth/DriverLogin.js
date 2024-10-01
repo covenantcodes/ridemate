@@ -46,6 +46,10 @@ const DriverLogin = () => {
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity onPress={() => navigation.navigate("")}>
+          <Text>register</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );

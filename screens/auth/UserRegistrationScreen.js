@@ -1,36 +1,38 @@
+// RegistrationScreen.js
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
   Text,
-  StyleSheet,
-  Image,
   TextInput,
   TouchableOpacity,
-  Alert,
+  StyleSheet,
+  Image,
 } from "react-native";
+import "../../services/config";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import "../../services/config"; // Ensure Firebase is initialized here
+import { SafeAreaView } from "react-native-safe-area-context";
 
-const UserLogin = () => {
-  const navigation = useNavigation();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const UserRegistrationScreen = ({ navigation }) => {
+  const [email, onChangeEmail] = useState("");
+  const [password, onChangePassword] = useState("");
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
-  const handleLogin = () => {
-    const auth = getAuth();
-    signInWithEmailAndPassword(auth, email, password)
+  const auth = getAuth();
+
+  const handleSignUp = () => {
+    createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log("User logged in:", user.email);
-        // Navigate to RideBookingScreen on successful login
-        navigation.navigate("RideBookingScreen");
+        setLoggedInUser(user.email); // Update logged-in user state
+        console.log("User registered:", user.email);
+        navigation.navigate("UserLogin");
       })
       .catch((error) => {
+        const errorCode = error.code;
         const errorMessage = error.message;
-        Alert.alert("Login Failed", errorMessage);
+        console.error(`Error ${errorCode}: ${errorMessage}`);
       });
   };
 
@@ -42,8 +44,10 @@ const UserLogin = () => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={23} color={"white"} />
         </TouchableOpacity>
-        <Text style={styles.title}>User Login</Text>
+        <Text style={styles.title}>User Register</Text>
       </View>
+
+      {/* {loggedInUser && <Text>Logged in as: {loggedInUser}</Text>}  */}
 
       <View style={styles.loginContainer}>
         <View style={styles.loginImage}>
@@ -55,33 +59,30 @@ const UserLogin = () => {
 
         <View style={styles.loginFormContainer}>
           <TextInput
-            placeholder="Email"
             style={styles.containerTextInput}
+            placeholder="Email"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={onChangeEmail}
             keyboardType="email-address"
             autoCapitalize="none"
           />
+
           <TextInput
-            placeholder="Password"
-            secureTextEntry
             style={styles.containerTextInput}
+            placeholder="Password"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={onChangePassword}
+            secureTextEntry
           />
 
-          <TouchableOpacity style={styles.button} onPress={handleLogin}>
-            <Text style={styles.buttonText}>Login</Text>
+          <TouchableOpacity style={styles.button} onPress={handleSignUp}>
+            <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
         </View>
 
-        <View>
-          <TouchableOpacity
-            onPress={() => navigation.navigate("UserRegistrationScreen")}
-          >
-            <Text>Don't have an account? Register</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+          <Text style={styles.link}>Already have an account? Log in</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -130,8 +131,8 @@ const styles = StyleSheet.create({
   },
 
   carImage: {
-    width: 180,
-    height: 380,
+    width: 250,
+    height: 280,
   },
 
   loginFormContainer: {
@@ -161,4 +162,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UserLogin;
+export default UserRegistrationScreen;
