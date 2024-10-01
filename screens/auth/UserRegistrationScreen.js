@@ -1,4 +1,3 @@
-// RegistrationScreen.js
 import React, { useState } from "react";
 import {
   View,
@@ -7,32 +6,50 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert,
 } from "react-native";
 import "../../services/config";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { getFirestore, setDoc, doc } from "firebase/firestore";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const UserRegistrationScreen = ({ navigation }) => {
   const [email, onChangeEmail] = useState("");
   const [password, onChangePassword] = useState("");
+  const [role, setRole] = useState("User"); // Default role is "User"
   const [loggedInUser, setLoggedInUser] = useState(null);
 
   const auth = getAuth();
+  const db = getFirestore();
 
   const handleSignUp = () => {
+    if (!email || !password) {
+      Alert.alert("Error", "Please fill in all fields");
+      return;
+    }
+
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
         setLoggedInUser(user.email); // Update logged-in user state
-        console.log("User registered:", user.email);
-        navigation.navigate("UserLogin");
+
+        // Save the user's role and other data in Firestore
+        return setDoc(doc(db, "users", user.uid), {
+          email: user.email,
+          role: role, // Store the selected role (User or Driver)
+        });
+      })
+      .then(() => {
+        console.log("User registered with role:", role);
+        navigation.navigate("UserLogin"); // Navigate to the login screen
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         console.error(`Error ${errorCode}: ${errorMessage}`);
+        Alert.alert("Registration Error", errorMessage);
       });
   };
 
@@ -44,10 +61,8 @@ const UserRegistrationScreen = ({ navigation }) => {
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Ionicons name="chevron-back" size={23} color={"white"} />
         </TouchableOpacity>
-        <Text style={styles.title}>User Register</Text>
+        <Text style={styles.title}>Register</Text>
       </View>
-
-      {/* {loggedInUser && <Text>Logged in as: {loggedInUser}</Text>}  */}
 
       <View style={styles.loginContainer}>
         <View style={styles.loginImage}>
@@ -75,12 +90,35 @@ const UserRegistrationScreen = ({ navigation }) => {
             secureTextEntry
           />
 
+          {/* Role selection: User or Driver */}
+          <View style={styles.roleSelectionContainer}>
+            <TouchableOpacity
+              style={[
+                styles.roleButton,
+                role === "User" && styles.roleButtonSelected,
+              ]}
+              onPress={() => setRole("User")}
+            >
+              <Text style={styles.roleButtonText}>User</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.roleButton,
+                role === "Driver" && styles.roleButtonSelected,
+              ]}
+              onPress={() => setRole("Driver")}
+            >
+              <Text style={styles.roleButtonText}>Driver</Text>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity style={styles.button} onPress={handleSignUp}>
             <Text style={styles.buttonText}>Register</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+        <TouchableOpacity onPress={() => navigation.navigate("UserLogin")}>
           <Text style={styles.link}>Already have an account? Log in</Text>
         </TouchableOpacity>
       </View>
@@ -94,7 +132,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     padding: 20,
   },
-
   header: {
     position: "absolute",
     top: 50,
@@ -108,7 +145,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: "#fff",
   },
-
   containerTop: {
     width: 600,
     marginTop: -350,
@@ -118,27 +154,22 @@ const styles = StyleSheet.create({
     backgroundColor: "#0E1724",
     alignItems: "flex-end",
   },
-
   loginContainer: {
     padding: 10,
   },
-
   loginImage: {
     width: "100%",
     marginTop: -200,
     alignItems: "center",
     justifyContent: "center",
   },
-
   carImage: {
-    width: 250,
-    height: 280,
+    width: 130,
+    height: 330,
   },
-
   loginFormContainer: {
     paddingVertical: 20,
   },
-
   containerTextInput: {
     borderBottomWidth: 1,
     borderColor: "#0E1724",
@@ -146,7 +177,24 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsMedium",
     marginVertical: 10,
   },
-
+  roleSelectionContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginVertical: 10,
+  },
+  roleButton: {
+    padding: 10,
+    backgroundColor: "#8f96a1",
+    marginHorizontal: 10,
+    borderRadius: 5,
+  },
+  roleButtonSelected: {
+    backgroundColor: "#0E1724",
+  },
+  roleButtonText: {
+    fontSize: 16,
+    color: "#fff",
+  },
   button: {
     width: "100%",
     padding: 15,
@@ -159,6 +207,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#ffffff",
     fontFamily: "PoppinsSemiBold",
+  },
+  link: {
+    color: "#0E1724",
+    textAlign: "center",
+    marginTop: 10,
   },
 });
 

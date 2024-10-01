@@ -20,7 +20,6 @@ const MainNavigator = () => {
           name="LoginSelection"
           component={LoginSelection}
           options={{ headerShown: false }}
-          z
         />
         <Stack.Screen
           name="UserLogin"

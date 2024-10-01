@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   View,
@@ -6,12 +7,81 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc } from "firebase/firestore";
+import "../../services/config"; // Ensure Firebase is initialized here
+import LoadingComponent from "../../components/LoadingComponent";
 
 const DriverLogin = () => {
   const navigation = useNavigation();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Function to check user role
+  const checkUserRole = async (userId) => {
+    const db = getFirestore();
+    const userDocRef = doc(db, "users", userId); // 'users' collection
+    const userDoc = await getDoc(userDocRef);
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      console.log("User Data: ", userData); // Debug log
+      if (userData && userData.role) {
+        return userData.role; // Assuming the role is stored in a 'role' field
+      } else {
+        throw new Error("User role not found in document");
+      }
+    } else {
+      throw new Error("User document does not exist");
+    }
+  };
+
+  const handleLogin = () => {
+    setLoading(true);
+    const auth = getAuth();
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        console.log("User logged in:", user.email);
+
+        // Retrieve the user role after login
+        try {
+          const role = await checkUserRole(user.uid);
+          console.log("User Role:", role); // Debug log
+
+          // Normalize role to lowercase for comparison
+          if (role.toLowerCase() === "user") {
+            // Show an alert if the user is a driver but logged in via the user login screen
+            Alert.alert(
+              "Login Failed",
+              "You are registered as a user. Please log in via the User Login."
+            );
+          } else if (role.toLowerCase() === "driver") {
+            // Navigate to RideBookingScreen if role is user
+            navigation.navigate("DriverHomeScreen");
+          } else {
+            Alert.alert("Error", "Invalid user role");
+          }
+        } catch (error) {
+          console.error("Role check error: ", error); // Debug log
+          Alert.alert("Error", error.message);
+        }
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        console.error("Login error: ", errorMessage); // Debug log
+        Alert.alert("Login Failed", errorMessage);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.containerTop}></View>
@@ -32,17 +102,23 @@ const DriverLogin = () => {
         </View>
 
         <View style={styles.loginFormContainer}>
-          <TextInput placeholder="Email" style={styles.containerTextInput} />
+          <TextInput
+            placeholder="Email"
+            style={styles.containerTextInput}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
           <TextInput
             placeholder="Password"
             secureTextEntry
             style={styles.containerTextInput}
+            value={password}
+            onChangeText={setPassword}
           />
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => navigation.navigate("DriverHomeScreen")}
-          >
+          <TouchableOpacity style={styles.button} onPress={handleLogin}>
             <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>
         </View>

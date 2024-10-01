@@ -26,7 +26,7 @@ const RequestDetailsScreen = ({ route, navigation }) => {
   const [currentLocation, setCurrentLocation] = useState("");
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [price, setPrice] = useState(0);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
   // Function to calculate price based on current and selected locations
   const calculatePrice = () => {
@@ -72,14 +72,45 @@ const RequestDetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const handleSubmit = () => {
+  // Handle form submission and save trip to the database
+  const handleSubmit = async () => {
     setLoading(true);
-    setTimeout(() => {
-      // Simulate request submission logic
-      console.log("Request submitted");
-      setLoading(false);
-      navigation.goBack(); // Optionally navigate back after submission
-    }, 3000); // Adjust the time as needed
+
+    // Prepare the trip details to be saved
+    const tripDetails = {
+      vehicleType,
+      selectedLocation,
+      currentLocation,
+      price,
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      // Send POST request to save trip to the backend
+      const response = await fetch("https://your-backend-api.com/trips", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tripDetails),
+      });
+
+      if (response.ok) {
+        // Trip saved successfully
+        const result = await response.json();
+        console.log("Trip saved:", result);
+
+        // Optionally navigate back or show a success message
+        navigation.goBack();
+      } else {
+        // Handle the error if the request failed
+        console.error("Failed to save trip");
+      }
+    } catch (error) {
+      console.error("Error saving trip:", error);
+    } finally {
+      setLoading(false); // Stop loading spinner
+    }
   };
 
   return (
@@ -137,6 +168,7 @@ const RequestDetailsScreen = ({ route, navigation }) => {
           </TouchableOpacity>
         </View>
       </View>
+
       {loading && <LoadingComponent />}
     </SafeAreaView>
   );
